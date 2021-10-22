@@ -17,11 +17,11 @@
           let windowRef = window.open(decodedText, "_blank");
           if (!windowRef)
           {
-            alert('A popup blocker was detected. Please turn it off to use this application. To turn it off click on the icon beside the camera icon on the address bar and then allow pop-ups. Make sure to reload the page for the first time.');
+            alert('A popup blocker was detected. Please turn it off to use this application. To turn it off click on the icon beside the camera icon on the address bar and then allow pop-ups.');
           }
         }
 
-        var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
+        let html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
           fps: 10,
           qrbox: 250,
           rememberLastUsedCamera: true
@@ -32,8 +32,20 @@
 
           Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length) {
-              var cameraId = devices[0].id;
-              html5QrcodeScanner.persistedDataManager.setLastUsedCameraId(cameraId);
+              let rearCamera = devices.find((d) =>
+                d.label.toLowerCase().includes("rear")
+              );
+              let cameraId;
+              if (rearCamera) {
+                cameraId = rearCamera.id;
+              } else {
+                cameraId = devices[0].id;
+              }
+
+              // TODO: if cameraId is undefined notify user that no camera founded
+              html5QrcodeScanner.persistedDataManager.setLastUsedCameraId(
+                cameraId
+              );
             }
           }).catch(err => {
             // handle err
