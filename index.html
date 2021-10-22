@@ -13,24 +13,34 @@
     <script type="text/javascript" src="/html5-qrcode.min.js"></script>
     <script>
       $(document).ready(function () {
-        var resultContainer = document.getElementById("qr-reader-results");
-        var lastResult,
-          countResults = 0;
-
         function onScanSuccess(decodedText, decodedResult) {
-          if (decodedText !== lastResult) {
-            ++countResults;
-            lastResult = decodedText;
-            // Handle on success condition with the decoded message.
-            window.open(decodedText, "_blank");
+          let windowRef = window.open(decodedText, "_blank");
+          if (!windowRef)
+          {
+            alert('A popup blocker was detected. Please turn it off to use this application. To turn it off click on the icon beside the camera icon on the address bar and then allow pop-ups. Make sure to reload the page for the first time.');
           }
         }
 
         var html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", {
           fps: 10,
           qrbox: 250,
+          rememberLastUsedCamera: true
         });
-        html5QrcodeScanner.render(onScanSuccess);
+        navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(() => {
+          html5QrcodeScanner.persistedDataManager.setHasPermission(true);
+          html5QrcodeScanner.render(onScanSuccess);
+
+          Html5Qrcode.getCameras().then(devices => {
+            if (devices && devices.length) {
+              var cameraId = devices[0].id;
+              html5QrcodeScanner.persistedDataManager.setLastUsedCameraId(cameraId);
+            }
+          }).catch(err => {
+            // handle err
+          });
+        }
+        );
+        
       });
     </script>
     <link
@@ -46,7 +56,6 @@
       <div class="row d-flex justify-content-center">
         <div class="col-md-6 col-sm-12">
           <div id="qr-reader"></div>
-          <div id="qr-reader-results"></div>
         </div>
       </div>
     </div>
