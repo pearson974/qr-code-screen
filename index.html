@@ -26,10 +26,11 @@
           qrbox: 250,
           rememberLastUsedCamera: true
         });
+
         navigator.mediaDevices.getUserMedia({ audio: false, video: true }).then(() => {
           html5QrcodeScanner.persistedDataManager.setHasPermission(true);
           html5QrcodeScanner.render(onScanSuccess);
-
+          html5QrcodeScanner.resetHeaderMessage();
           Html5Qrcode.getCameras().then(devices => {
             if (devices && devices.length) {
               let rearCamera = devices.find((d) =>
@@ -42,16 +43,22 @@
                 cameraId = devices[0].id;
               }
 
-              // TODO: if cameraId is undefined notify user that no camera founded
               html5QrcodeScanner.persistedDataManager.setLastUsedCameraId(
                 cameraId
               );
+            } else {
+              html5QrcodeScanner.setHeaderMessage("No Camera Found", 2);
             }
-          }).catch(err => {
-            // handle err
+          }).catch(error => {
+            html5QrcodeScanner.persistedDataManager.setHasPermission(false);
+            
+            html5QrcodeScanner.setHeaderMessage(error, 2);
           });
         }
-        );
+        ).catch(error => {
+          html5QrcodeScanner.persistedDataManager.setHasPermission(false);
+          html5QrcodeScanner.setHeaderMessage(`Error getting userMedia, error = ${error}`);
+        });
         
       });
     </script>
@@ -63,13 +70,8 @@
     />
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark py-4"></nav>
-    <div class="container-fluid">
-      <div class="row d-flex justify-content-center">
-        <div class="col-md-6 col-sm-12">
-          <div id="qr-reader"></div>
-        </div>
-      </div>
+    <div class="d-flex justify-content-center">
+      <div id="qr-reader"></div>
     </div>
   </body>
 </html>
