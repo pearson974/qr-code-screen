@@ -57,7 +57,7 @@
         }
         ).catch(error => {
           html5QrcodeScanner.persistedDataManager.setHasPermission(false);
-          html5QrcodeScanner.setHeaderMessage(`Error getting userMedia, error = ${error}`);
+          alert("An error occurred while trying to retrieve the media devices. Please make sure you have not blocked the camera access for this website. To allow access click on the camera icon on the address bar and allow the access. You need to refresh the page after allowing the access.");
         });
         
       });
